@@ -26,10 +26,10 @@
 
 //TicTacToe protocols
 #define DENY                00
-#define PLAYING             10
-#define ACCEPT              11
-#define YOUR_TURN           12
-#define INVITATION          13
+#define PLAYING             90
+#define ACCEPT              91
+#define YOUR_TURN           92
+#define INVITATION          93
 
 #include <string>
 #include <iostream>
