@@ -24,7 +24,9 @@
 
 std::string nickname;
 std::pair<bool, std::string> is_currently_playing = std::make_pair(false, ""); 
-TicTacToe game;
+TicTacToe game(3);
+int dimension_of_the_board = 3;
+bool your_turn = true;
 
 void readMessage(int SocketFD)
 {
@@ -125,6 +127,8 @@ void readMessage(int SocketFD)
                 char answer;
                 std::cout << "\t\t[" << opponent_nickname << "] invited you to play a TicTacToe match! (Press 'G' to accept!)\n";
                 is_currently_playing.second = opponent_nickname;
+                n = recv(SocketFD, bufferRead, 2, 0);
+                dimension_of_the_board= atoi(bufferRead);
                 waiting_response();
                 continue;
             }
@@ -167,7 +171,9 @@ void readMessage(int SocketFD)
                     std::cout << "\t\t Draw!\n$ ";
                     continue;
                 }
-                std::cout << "\t\t[" << opponent_nickname << "] made a new movement! (Press 'G' to see it)\n";
+                your_turn = true;
+                std::cout << "\t\t[" << opponent_nickname << "] made a new movement!\n";
+                game.print_board();
             }
             std::cout << "\n$ ";
         }
@@ -437,6 +443,7 @@ int main(void)
                     }
                     //std::cout << instruction << "\n"; */
                     instruction.append(normalize_integer(ACCEPT, TWO_DIGITS));
+                    game = TicTacToe(dimension_of_the_board);
                     //std::cout << instruction << "-" << instruction.size() << "..." <<"\n";
                     n = send(SocketFD, &instruction.front(), instruction.size(), 0);
                     is_currently_playing.first = true;
@@ -447,38 +454,53 @@ int main(void)
                     std::string opponent_nickname;
                     std::cout << "Type who you want to play with: ";
                     std::cin >> opponent_nickname;
-                    
+                    int dimension;
+                    std::cout << "Type the dimension of the board: ";
+                    std::cin >> dimension;
+                    game = TicTacToe(dimension);
                     is_currently_playing = std::make_pair(true, opponent_nickname);
                     instruction.clear();
                     instruction.push_back(GAME);
                     instruction.append(normalize_integer(opponent_nickname.size(), TWO_DIGITS));
                     instruction.append(opponent_nickname);
                     instruction.append(normalize_integer(INVITATION, TWO_DIGITS));
+                    instruction.append(normalize_integer(dimension, TWO_DIGITS));
                     n = send(SocketFD, &instruction.front(), instruction.size(), 0);
                 }
             }
             else
             {
-                game.print_board();
-                game.print_options();
-                int movement = 0;
-                std::cout << "Type your movement: ";
-                std::cin >> movement;
-                game.insert_movement(movement);
-                instruction.clear();
-                instruction.push_back(GAME);
-                instruction.append(normalize_integer(is_currently_playing.second.size(), TWO_DIGITS));
-                instruction.append(is_currently_playing.second);
-                instruction.append(normalize_integer(movement, TWO_DIGITS));
-                n = send(SocketFD, &instruction.front(), instruction.size(), 0);
-                if(game.is_over())
+                if(your_turn)
                 {
-                    game.print_board();
-                    game.clear();
-                    std::cout << "You won! :) ";
-                    is_currently_playing = std::make_pair(false, "");
+                    if(game._movements == 0)
+                    {
+                        game.print_board();
+                    }
+                    game.print_options();
+                    int movement = 0;
+                    std::cout << "Type your movement: ";
+                    std::cin >> movement;
+                    game.insert_movement(movement);
+                    instruction.clear();
+                    instruction.push_back(GAME);
+                    instruction.append(normalize_integer(is_currently_playing.second.size(), TWO_DIGITS));
+                    instruction.append(is_currently_playing.second);
+                    instruction.append(normalize_integer(movement, TWO_DIGITS));
+                    n = send(SocketFD, &instruction.front(), instruction.size(), 0);
+                    if(game.is_over())
+                    {
+                        game.print_board();
+                        game.clear();
+                        std::cout << "You won! :) ";
+                        is_currently_playing = std::make_pair(false, "");
+                    }
+                    your_turn = false;
+                    std::cout << "\n$ ";
                 }
-                std::cout << "\n$ ";
+                else{
+                    std::cout << "[" << is_currently_playing.second << "] hasn't already made a movement :( \n$ ";
+                }
+
             }
         }
 

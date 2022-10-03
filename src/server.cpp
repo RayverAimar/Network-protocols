@@ -248,6 +248,13 @@ void readClient(int cur_client_socket)
             client_buffer[n] = '\0';
             int request = atoi(client_buffer);
             instruction.append(normalize_integer(request, TWO_DIGITS));
+            if(request == INVITATION)
+            {
+                n = recv(cur_client_socket, client_buffer, 2, 0);
+                client_buffer[n] = '\0';
+                int _dimension = atoi(client_buffer);
+                instruction.append(normalize_integer(_dimension, TWO_DIGITS));
+            }
             n = send(receiver_socket, &instruction.front(), instruction.size(), 0);
             std::cout << "GAME:\t\t\t User [" << names[cur_client_socket] << "] coordinating a match with [" << opponent_nickname << "].\n";
         }
@@ -305,12 +312,11 @@ int main()
         client_buffer[n] = '\0';
         std::string nickname(client_buffer);
         std::cout << "NEW CLIENT:\t\t [" << nickname << "]\n";
-        
-        Client temporal_client(nickname);
-        clients[client_id] = temporal_client;
+        //Client temporal_client(nickname);
+        //clients[client_id] = temporal_client;
         names[client_id] = nickname;
 
-        std::cout << clients[client_id].name << " | " << clients[client_id].is_playing << "\n";
+        //std::cout << clients[client_id].name << " | " << clients[client_id].is_playing << "\n";
 
         std::thread(readClient, client_id).detach();
     }
