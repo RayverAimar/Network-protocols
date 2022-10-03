@@ -18,9 +18,15 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "./include/utils.h"
+#include "../include/utils.h"
+#include "../include/client.h"
+#include "../include/TicTacToe.h"
+
+
+std::map<int, Client> clients;
 
 std::map<int, std::string> names;
+std::map<int, bool> is_currently_playing;
 
 void readClient(int cur_client_socket)
 {
@@ -289,18 +295,24 @@ int main()
     while(true)
     {
         cur_client = sizeof(struct sockaddr_in);
-        int clientFD = accept(SocketFD, (struct sockaddr *)&stCliAddr, &cur_client);        
-        n = recv(clientFD, client_buffer, 1, 0);
+        int client_id = accept(SocketFD, (struct sockaddr *)&stCliAddr, &cur_client);        
+        n = recv(client_id, client_buffer, 1, 0);
         char option = client_buffer[0];
-        n = recv(clientFD, client_buffer, 2, 0);
+        n = recv(client_id, client_buffer, 2, 0);
         client_buffer[n] = '\0';
         int size_of_client_nickname = atoi(client_buffer);
-        n = recv(clientFD, client_buffer, size_of_client_nickname, 0);
+        n = recv(client_id, client_buffer, size_of_client_nickname, 0);
         client_buffer[n] = '\0';
         std::string nickname(client_buffer);
         std::cout << "NEW CLIENT:\t\t [" << nickname << "]\n";
-        names[clientFD] = nickname;
-        std::thread(readClient, clientFD).detach();
+        
+        Client temporal_client(nickname);
+        clients[client_id] = temporal_client;
+        names[client_id] = nickname;
+
+        std::cout << clients[client_id].name << " | " << clients[client_id].is_playing << "\n";
+
+        std::thread(readClient, client_id).detach();
     }
 
     close(SocketFD);

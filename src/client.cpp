@@ -18,8 +18,8 @@
 #include <utility>
 #include <fstream>
 
-#include "./include/utils.h"
-#include "./include/TicTacToe.h"
+#include "../include/utils.h"
+#include "../include/TicTacToe.h"
 
 
 std::string nickname;
@@ -208,7 +208,7 @@ void readMessage(int SocketFD)
             bufferRead[n] = '\0';
             std::string filename(bufferRead, 0, size_filename);
             std::ofstream outfile;
-            std::string path = "tempo/" + filename;
+            std::string path = "receiver_folder/" + filename;
             outfile.open(path, std::ios::out);
             while (size_file > 0)
             {
