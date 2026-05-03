@@ -1,7 +1,7 @@
-#ifdef __linux__
+#if defined(__linux__) || defined(__APPLE__)
 
     #include <sys/types.h>
-    #include <sys/socket.h>  
+    #include <sys/socket.h>
     #include <netinet/in.h>
     #include <arpa/inet.h>
 
@@ -40,6 +40,7 @@ void readMessage(int SocketFD)
         std::string instruction;
         instruction.clear();
         n = recv(SocketFD, &tag, 1, 0);
+        if (n <= 0) break;
         if(tag == LIST) //L03040606RAULRAYVERGIOMAR
         {
             std::cout << "\n";

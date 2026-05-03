@@ -1,8 +1,8 @@
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__APPLE__)
 
     #include <sys/types.h>
-    #include <sys/socket.h>  
+    #include <sys/socket.h>
     #include <netinet/in.h>
     #include <arpa/inet.h>
 
