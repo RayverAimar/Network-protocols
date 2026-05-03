@@ -14,7 +14,7 @@
 #define NICKNAME            'N'
 #define CLOSE_SESSION       'R'
 #define MESSAGE             'M'
-#define NOTIFICATION        'N'
+#define NOTIFICATION        'T'
 #define SEND_FILE           'F'
 #define GAME                'G'
 #define GAME_HANDLER        'H'
